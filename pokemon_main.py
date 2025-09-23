@@ -330,6 +330,7 @@ def iniciarBatalhaIA(pokemon1, pokemonIA):
     vidaP1 = pokemon1['vida']
     vidaIA = pokemonIA['vida']
     turno = 1
+    musicaBatalha(musica)
     while vidaP1 > 0 and vidaIA > 0:
         print(f"\n=== Turno {turno} ===")
         print(f"Vida de {pokemon1['nome']}: {Fore.GREEN}{vidaP1}{Style.RESET_ALL}")
@@ -416,5 +417,6 @@ while True:
             break
         case _:
             print("Opção inválida, escolha novamente.\n")
+
 
 input("Pressione ENTER para sair...")
