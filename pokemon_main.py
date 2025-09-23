@@ -1,9 +1,14 @@
 import random
 from colorama import init, Fore, Back, Style
 from term_image.image import from_url
+import pygame
+import requests
+import tempfile
 
 init(autoreset=True)
-
+pygame.init()
+pygame.mixer.init()
+musica = "https://play.pokemonshowdown.com/audio/hgss-johto-trainer.mp3"
 # Lista de Pokémons com todas as informações e os dois ataques
 listaPokemons = [
     {
@@ -19,6 +24,7 @@ listaPokemons = [
         "danoAtaque": 25,
         "nomeAtaque2": "Semente Sanguessuga",
         "danoAtaque2": 35,
+        "audio": "https://play.pokemonshowdown.com/audio/cries/bulbasaur.mp3",
         "imagem": "https://raw.githubusercontent.com/HybridShivam/Pokemon/master/assets/images/001.png"
     },
     {
@@ -34,6 +40,7 @@ listaPokemons = [
         "danoAtaque": 52,
         "nomeAtaque2": "Brasa",
         "danoAtaque2": 40,
+        "audio": "https://play.pokemonshowdown.com/audio/cries/charmander.mp3",
         "imagem": "https://raw.githubusercontent.com/HybridShivam/Pokemon/master/assets/images/004.png"
     },
     {
@@ -49,6 +56,7 @@ listaPokemons = [
         "danoAtaque": 48,
         "nomeAtaque2": "Bolhas",
         "danoAtaque2": 30,
+        "audio": "https://play.pokemonshowdown.com/audio/cries/squirtle.mp3",
         "imagem": "https://raw.githubusercontent.com/HybridShivam/Pokemon/master/assets/images/007.png"
     },
     {
@@ -64,6 +72,7 @@ listaPokemons = [
         "danoAtaque": 55,
         "nomeAtaque2": "Investida Trovão",
         "danoAtaque2": 60,
+        "audio": "https://play.pokemonshowdown.com/audio/cries/pikachu.mp3",
         "imagem": "https://raw.githubusercontent.com/HybridShivam/Pokemon/master/assets/images/025.png"
     },
     {
@@ -79,10 +88,35 @@ listaPokemons = [
         "danoAtaque": 45,
         "nomeAtaque2": "Tapa",
         "danoAtaque2": 30,
+        "audio": "https://play.pokemonshowdown.com/audio/cries/jigglypuff.mp3",
         "imagem": "https://raw.githubusercontent.com/HybridShivam/Pokemon/master/assets/images/039.png"
     }
 ]
 
+def musicaBatalha(url):
+    try:
+        musicaFundo = requests.get(url)
+        tempMusic = tempfile.NamedTemporaryFile(delete=False)
+        tempMusic.write(musicaFundo.content)
+        tempMusic.close()
+        pygame.mixer.init()
+        pygame.mixer.music.load(tempMusic.name)
+        pygame.mixer.music.set_volume(0.3)
+        pygame.mixer.music.play(loops=-1)
+    except Exception as e:
+        print(f"Erro ao reproduzir musica de fundo {e}")
+
+def iniciarSons(url):
+    try:
+        som = requests.get(url)
+        audioTemporario = tempfile.NamedTemporaryFile (delete=False)
+        audioTemporario.write(som.content)    
+        audioTemporario.close()
+        efeito_sonoro = pygame.mixer.Sound(audioTemporario.name)
+        efeito_sonoro.set_volume(0.4)
+        efeito_sonoro.play()
+    except Exception as e:
+        print(f"Erro ao carregar o som: {e}")
 
 # Função para iniciar o jogo (2 jogadores)
 def iniciarJogo():
@@ -94,7 +128,6 @@ def iniciarJogo():
     print(f"{Back.LIGHTRED_EX}Jogador 2 escolheu{Style.RESET_ALL} - {escolhaJogador2['exibNome']}")
 
     if escolhaJogador1 and escolhaJogador2:
-        print("Até aqui funcionou")
         iniciarBatalha(escolhaJogador1, escolhaJogador2)
     else:
         print("Erro na escolha dos Pokémons.")
@@ -110,7 +143,6 @@ def iniciarJogoIA():
     print(f"{Back.LIGHTRED_EX}IA escolheu{Style.RESET_ALL} - {escolhaIA['exibNome']}")
 
     if escolhaJogador1 and escolhaIA:
-        print("Até aqui funcionou")
         iniciarBatalhaIA(escolhaJogador1, escolhaIA)
     else:
         print("Erro na escolha dos Pokémons.")
@@ -145,6 +177,7 @@ def iniciarPokedex():
                 break
             case 1 | 2 | 3 | 4 | 5:
                 p = listaPokemons[exibInfo - 1]
+                iniciarSons(p['audio'])
                 print(f"{p['exibNome']}")
                 print(f"Tipo - {', '.join(p['tipo'])}")
                 print(f"Fraquezas - {', '.join(p['fraquezas'])}")
@@ -224,6 +257,7 @@ def iniciarBatalha(pokemon1, pokemon2):
     vidaP1 = pokemon1['vida']
     vidaP2 = pokemon2['vida']
     turno = 1
+    musicaBatalha(musica)
     while vidaP1 > 0 and vidaP2 > 0:
         print(f"\n=== Turno {turno} ===")
         print(f"Vida de {pokemon1['nome']}: {Fore.GREEN}{vidaP1}{Style.RESET_ALL}")
@@ -243,14 +277,17 @@ def iniciarBatalha(pokemon1, pokemon2):
 
         if escolha_p1 == 3:
             print(f"\n{pokemon1['nome']} desistiu. {pokemon2['nome']} venceu!")
+            pygame.mixer.music.stop()
             break
         elif escolha_p1 in [1, 2]:
             dano_causado, nome_ataque_usado = calcularDano(pokemon1, escolha_p1)
             vidaP2 -= dano_causado
+            iniciarSons(pokemon1['audio'])
             print(f"{pokemon1['nome']} causou {dano_causado} de dano em {pokemon2['nome']}!")
             if vidaP2 <= 0:
                 print(f"\n{pokemon2['nome']} desmaiou! {pokemon1['nome']} venceu!")
                 print(f"A partida durou {turno} turnos.")
+                pygame.mixer.music.stop()
                 break
         else:
             print("Opção inválida. Nenhuma ação realizada.")
@@ -270,14 +307,17 @@ def iniciarBatalha(pokemon1, pokemon2):
 
             if escolha_p2 == 3:
                 print(f"\n{pokemon2['nome']} desistiu. {pokemon1['nome']} venceu!")
+                pygame.mixer.music.stop()
                 break
             elif escolha_p2 in [1, 2]:
                 dano_causado, nome_ataque_usado = calcularDano(pokemon2, escolha_p2)
                 vidaP1 -= dano_causado
+                iniciarSons(pokemon2['audio'])
                 print(f"{pokemon2['nome']} causou {dano_causado} de dano em {pokemon1['nome']}!")
                 if vidaP1 <= 0:
                     print(f"\n{pokemon1['nome']} desmaiou! {pokemon2['nome']} venceu!")
                     print(f"A partida durou {turno} turnos.")
+                    pygame.mixer.music.stop()
                     break
             else:
                 print("Opção inválida. Nenhuma ação realizada.")
@@ -309,14 +349,17 @@ def iniciarBatalhaIA(pokemon1, pokemonIA):
 
         if escolha_p1 == 3:
             print(f"\nVocê desistiu. A IA venceu!")
+            pygame.mixer.music.stop()
             break
         elif escolha_p1 in [1, 2]:
             dano_causado, nome_ataque_usado = calcularDano(pokemon1, escolha_p1)
             vidaIA -= dano_causado
+            iniciarSons(pokemon1['audio'])
             print(f"{pokemon1['nome']} causou {dano_causado} de dano em {pokemonIA['nome']}!")
             if vidaIA <= 0:
                 print(f"\n{pokemonIA['nome']} desmaiou! Você venceu!")
                 print(f"A partida durou {turno} turnos.")
+                pygame.mixer.music.stop()
                 break
         else:
             print("Opção inválida. Nenhuma ação realizada.")
@@ -328,11 +371,13 @@ def iniciarBatalhaIA(pokemon1, pokemonIA):
             escolha_ia = random.choice([1, 2])
             dano_causado, nome_ataque_usado = calcularDano(pokemonIA, escolha_ia)
             vidaP1 -= dano_causado
+            iniciarSons(pokemonIA['audio'])
             print(
                 f"A IA ({pokemonIA['nome']}) atacou com {nome_ataque_usado} e causou {dano_causado} de dano em {pokemon1['nome']}!")
             if vidaP1 <= 0:
                 print(f"\n{pokemon1['nome']} desmaiou! A IA venceu!")
                 print(f"A partida durou {turno} turnos.")
+                pygame.mixer.music.stop()
                 break
 
         turno += 1
