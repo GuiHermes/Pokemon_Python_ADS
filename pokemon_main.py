@@ -4,6 +4,7 @@ from term_image.image import from_url
 import pygame
 import requests
 import tempfile
+# Teste de commit
 
 init(autoreset=True)
 pygame.init()
