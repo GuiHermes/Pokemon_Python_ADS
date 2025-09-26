@@ -4,6 +4,7 @@ from term_image.image import from_url
 import pygame
 import requests
 import tempfile
+import os
 # Teste de commit
 
 init(autoreset=True)
@@ -188,6 +189,8 @@ def iniciarPokedex():
                 print(f"Chance de Crítico: {Fore.RED}{p['critico']}%{Style.RESET_ALL}")
                 print(f"{Fore.WHITE}{p['descricao']}{Style.RESET_ALL}")
                 mostrarImagemTerminal(p['imagem'])
+                input("Pressione ENTER para continuar...")
+
             case _:
                 print("Digite uma opção válida!")
         print("\n")
@@ -392,14 +395,17 @@ def jogadorIA(pokemon1):
         if pokemonIA['nome'] != pokemon1['nome']:  # Verifica se é diferente do pokemon do jogador 1
             return pokemonIA
 
-
+def limparConsole():
+    os.system('cls' if os.name == 'nt' else 'clear')
+    print("Console limpo!\n")
 # Menu principal
 while True:
     print("\n--- MENU POKÉMON ---")
     print("1 - Iniciar Jogo 2 Jogadores")
     print("2 - Iniciar Jogo 1 Jogador (vs IA)")
     print("3 - Ver Pokédex")
-    print("4 - Sair\n")
+    print("4 - Limpar Console")
+    print("5 - Sair\n")
     try:
         opcao = int(input("Digite a opção desejada: "))
     except ValueError:
@@ -414,6 +420,8 @@ while True:
         case 3:
             iniciarPokedex()
         case 4:
+            limparConsole()
+        case 5:
             print("Obrigado por jogar!\n")
             break
         case _:
