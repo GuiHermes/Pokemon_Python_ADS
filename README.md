@@ -51,6 +51,6 @@ python pokemon_main.py
 ## Integrantes
 
 * Guilherme - https://github.com/GuiHermes
-* Matheus - https://github.com/matheusrodaniel-png
+* Matheus - https://github.com/Matheus-Rod03
 * Gustavo - https://github.com/gurezende7
 * Hian - https://github.com/hian128
